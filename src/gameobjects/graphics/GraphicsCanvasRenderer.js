@@ -234,6 +234,18 @@ var GraphicsCanvasRenderer = function (renderer, src, interpolationPercentage, c
             case Commands.SET_TEXTURE:
                 index += 2;
                 break;
+
+            case Commands.CURVE_TO:
+                ctx.bezierCurveTo(
+                    commandBuffer[index + 1],
+                    commandBuffer[index + 2],
+                    commandBuffer[index + 3],
+                    commandBuffer[index + 4],
+                    commandBuffer[index + 5],
+                    commandBuffer[index + 6]
+                );
+                index += 6;
+                break;
         }
     }
 

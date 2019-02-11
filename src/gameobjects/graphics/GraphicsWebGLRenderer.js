@@ -94,6 +94,7 @@ var GraphicsWebGLRenderer = function (renderer, src, interpolationPercentage, ca
     var ta = 0;
     var iterStep = 0.01;
     var PI2 = Math.PI * 2;
+    var iteration;
 
     var cmd;
 
@@ -196,7 +197,7 @@ var GraphicsWebGLRenderer = function (renderer, src, interpolationPercentage, ca
                 break;
 
             case Commands.ARC:
-                var iteration = 0;
+                iteration = 0;
                 var x = commands[++cmdIndex];
                 var y = commands[++cmdIndex];
                 var radius = commands[++cmdIndex];
@@ -302,6 +303,42 @@ var GraphicsWebGLRenderer = function (renderer, src, interpolationPercentage, ca
                 else
                 {
                     lastPath = new Path(commands[++cmdIndex], commands[++cmdIndex], lineWidth);
+                    path.push(lastPath);
+                }
+                break;
+
+            case Commands.CURVE_TO:
+                if (lastPath !== null)
+                {
+                    iteration = 0;
+                    var cp1x = commands[++cmdIndex];
+                    var cp1y = commands[++cmdIndex];
+                    var cp2x = commands[++cmdIndex];
+                    var cp2y = commands[++cmdIndex];
+                    var x2 = commands[++cmdIndex];
+                    var y2 = commands[++cmdIndex];
+                    var x1 = lastPath.points[lastPath.points.length - 1].x;
+                    var y1 = lastPath.points[lastPath.points.length - 1].y;
+                    
+                    while (iteration <= 1)
+                    {
+                        var s = 1 - iteration;
+                        var s2 = s * s;
+                        var s3 = s2 * s;
+                        var t2 = iteration * iteration;
+                        var t3 = t2 * iteration;
+                        tx = s3 * x1 + 3 * s2 * iteration * cp1x + 3 * s * t2 * cp2x + t3 * x2;
+                        ty = s3 * y1 + 3 * s2 * iteration * cp1y + 3 * s * t2 * cp2y + t3 * y2;
+
+                        lastPath.points.push(new Point(tx, ty, lineWidth));
+
+                        iteration += iterStep;
+                    }
+                }
+                else
+                {
+                    lastPath = new Path(commands[++cmdIndex], commands[++cmdIndex], lineWidth);
+                    cmdIndex += 4;
                     path.push(lastPath);
                 }
                 break;

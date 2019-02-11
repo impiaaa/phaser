@@ -28,6 +28,7 @@ module.exports = {
     SET_TEXTURE: 19,
     CLEAR_TEXTURE: 20,
     GRADIENT_FILL_STYLE: 21,
-    GRADIENT_LINE_STYLE: 22
+    GRADIENT_LINE_STYLE: 22,
+    CURVE_TO: 23
 
 };

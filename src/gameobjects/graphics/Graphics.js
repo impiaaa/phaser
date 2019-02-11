@@ -1440,6 +1440,29 @@ var Graphics = new Class({
     },
 
     /**
+     * Draw a curve from the current drawing position to the given position.
+     *
+     * Moves the current drawing position to the given position.
+     *
+     * @method Phaser.GameObjects.Graphics#curveTo
+     * @since 3.x.0
+     *
+     * @param {number} x - The x coordinate to draw the line to.
+     * @param {number} y - The y coordinate to draw the line to.
+     *
+     * @return {Phaser.GameObjects.Graphics} This Game Object.
+     */
+    curveTo: function (cp1x, cp1y, cp2x, cp2y, x, y)
+    {
+        this.commandBuffer.push(
+            Commands.CURVE_TO,
+            cp1x, cp1y, cp2x, cp2y, x, y
+        );
+
+        return this;
+    },
+
+    /**
      * Clear the command buffer and reset the fill style and line style to their defaults.
      *
      * @method Phaser.GameObjects.Graphics#clear
