@@ -155,7 +155,7 @@ var BitmapMaskPipeline = new Class({
      * @param {Phaser.GameObjects.GameObject} maskedObject - GameObject masked by the mask GameObject.
      * @param {Phaser.Cameras.Scene2D.Camera} camera - [description]
      */
-    beginMask: function (mask, maskedObject, camera)
+    beginMask: function (mask, maskedObject, camera, transformMatrix)
     {
         var renderer = this.renderer;
         var gl = this.gl;
@@ -173,7 +173,7 @@ var BitmapMaskPipeline = new Class({
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // We render our mask source
-            bitmapMask.renderWebGL(renderer, bitmapMask, 0, camera);
+            bitmapMask.renderWebGL(renderer, bitmapMask, 0, camera, transformMatrix);
             renderer.flush();
 
             // Bind and clear our main source (masked object)

@@ -80,7 +80,17 @@ var ContainerCanvasRenderer = function (renderer, container, interpolationPercen
         }
 
         //  Render
+        if (child.mask)
+        {
+            child.mask.preRenderCanvas(renderer, child, camera, transformMatrix);
+        }
+
         child.renderCanvas(renderer, child, interpolationPercentage, camera, transformMatrix);
+
+        if (child.mask)
+        {
+            child.mask.postRenderCanvas(renderer);
+        }
 
         //  Restore original values
         child.setAlpha(childAlpha);

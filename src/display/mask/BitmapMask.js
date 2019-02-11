@@ -183,9 +183,9 @@ var BitmapMask = new Class({
      * @param {Phaser.GameObjects.GameObject} maskedObject - The masked Game Object which will be drawn.
      * @param {Phaser.Cameras.Scene2D.Camera} camera - The Camera to render to.
      */
-    preRenderWebGL: function (renderer, maskedObject, camera)
+    preRenderWebGL: function (renderer, maskedObject, camera, transformMatrix)
     {
-        renderer.pipelines.BitmapMaskPipeline.beginMask(this, maskedObject, camera);
+        renderer.pipelines.BitmapMaskPipeline.beginMask(this, maskedObject, camera, transformMatrix);
     },
 
     /**

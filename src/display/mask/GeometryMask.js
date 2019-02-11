@@ -81,7 +81,7 @@ var GeometryMask = new Class({
      * @param {Phaser.GameObjects.GameObject} mask - The Game Object being rendered.
      * @param {Phaser.Cameras.Scene2D.Camera} camera - The camera the Game Object is being rendered through.
      */
-    preRenderWebGL: function (renderer, mask, camera)
+    preRenderWebGL: function (renderer, mask, camera, transformMatrix)
     {
         var gl = renderer.gl;
         var geometryMask = this.geometryMask;
@@ -97,7 +97,7 @@ var GeometryMask = new Class({
         gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
 
         // Write stencil buffer
-        geometryMask.renderWebGL(renderer, geometryMask, 0, camera);
+        geometryMask.renderWebGL(renderer, geometryMask, 0, camera, transformMatrix);
 
         renderer.flush();
 
@@ -144,13 +144,13 @@ var GeometryMask = new Class({
      * @param {Phaser.GameObjects.GameObject} mask - The Game Object being rendered.
      * @param {Phaser.Cameras.Scene2D.Camera} camera - The camera the Game Object is being rendered through.
      */
-    preRenderCanvas: function (renderer, mask, camera)
+    preRenderCanvas: function (renderer, mask, camera, transformMatrix)
     {
         var geometryMask = this.geometryMask;
 
         renderer.currentContext.save();
 
-        geometryMask.renderCanvas(renderer, geometryMask, 0, camera, null, null, true);
+        geometryMask.renderCanvas(renderer, geometryMask, 0, camera, transformMatrix, null, true);
 
         renderer.currentContext.clip();
     },

@@ -80,7 +80,20 @@ var ContainerWebGLRenderer = function (renderer, container, interpolationPercent
         child.setAlpha(childAlpha * alpha);
 
         //  Render
-        child.renderWebGL(renderer, child, interpolationPercentage, camera, transformMatrix);
+        var mask = child.mask;
+
+        if (mask)
+        {
+            mask.preRenderWebGL(renderer, child, camera, transformMatrix);
+
+            child.renderWebGL(renderer, child, interpolationPercentage, camera, transformMatrix);
+
+            mask.postRenderWebGL(renderer);
+        }
+        else
+        {
+            child.renderWebGL(renderer, child, interpolationPercentage, camera, transformMatrix);
+        }
 
         //  Restore original values
         child.setAlpha(childAlpha);
