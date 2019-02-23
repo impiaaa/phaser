@@ -1432,7 +1432,7 @@ var InputManager = new Class({
     {
         var input = gameObject.input;
 
-        if (!input || !input.enabled || !gameObject.willRender(camera))
+        if (!input || (!input.enabled && !input.dropZone) || !gameObject.willRender(camera))
         {
             return false;
         }

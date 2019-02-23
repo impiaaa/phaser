@@ -786,6 +786,12 @@ var InputPlugin = new Class({
                 if (obj.input.dropZone)
                 {
                     this._tempZones.push(obj);
+                    
+                    if (!obj.input.enabled)
+                    {
+                        over.splice(i, 1);
+                        i--;
+                    }
                 }
             }
 
