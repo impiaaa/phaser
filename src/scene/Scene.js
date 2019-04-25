@@ -16,7 +16,7 @@ var Systems = require('./Systems');
  * @constructor
  * @since 3.0.0
  *
- * @param {(string|Phaser.Scenes.Settings.Config)} config - Scene specific configuration settings.
+ * @param {(string|Phaser.Scenes.Types.SettingsConfig)} config - Scene specific configuration settings.
  */
 var Scene = new Class({
 
@@ -269,9 +269,9 @@ var Scene = new Class({
 
     /**
      * Should be overridden by your own Scenes.
+     * This method is called once per game step while the scene is running.
      *
      * @method Phaser.Scene#update
-     * @override
      * @since 3.0.0
      *
      * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
@@ -280,6 +280,36 @@ var Scene = new Class({
     update: function ()
     {
     }
+
+    /**
+     * Can be defined on your own Scenes.
+     * This method is called by the Scene Manager when the scene starts, before `preload()` and `create()`.
+     *
+     * @method Phaser.Scene#init
+     * @since 3.0.0
+     *
+     * @param {object} data - Any data passed via `ScenePlugin.add()` or `ScenePlugin.start()`. Same as Scene.settings.data.
+     */
+
+    /**
+     * Can be defined on your own Scenes. Use it to load assets.
+     * This method is called by the Scene Manager, after `init()` and before `create()`, only if the Scene has a LoaderPlugin.
+     * After this method completes, if the LoaderPlugin's queue isn't empty, the LoaderPlugin will start automatically.
+     *
+     * @method Phaser.Scene#preload
+     * @since 3.0.0
+     */
+
+    /**
+     * Can be defined on your own Scenes. Use it to create your game objects.
+     * This method is called by the Scene Manager when the scene starts, after `init()` and `preload()`.
+     * If the LoaderPlugin started after `preload()`, then this method is called only after loading is complete.
+     *
+     * @method Phaser.Scene#create
+     * @since 3.0.0
+     *
+     * @param {object} data - Any data passed via `ScenePlugin.add()` or `ScenePlugin.start()`. Same as Scene.settings.data.
+     */
 
 });
 

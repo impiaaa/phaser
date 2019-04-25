@@ -151,7 +151,7 @@ var Tile = new Class({
          * Tile specific properties. These usually come from Tiled.
          *
          * @name Phaser.Tilemaps.Tile#properties
-         * @type {object}
+         * @type {any}
          * @since 3.0.0
          */
         this.properties = {};
@@ -470,7 +470,7 @@ var Tile = new Class({
      */
     getCenterX: function (camera)
     {
-        return this.getLeft(camera) + this.width / 2;
+        return (this.getLeft(camera) + this.getRight(camera)) / 2;
     },
 
     /**
@@ -486,7 +486,7 @@ var Tile = new Class({
      */
     getCenterY: function (camera)
     {
-        return this.getTop(camera) + this.height / 2;
+        return (this.getTop(camera) + this.getBottom(camera)) / 2;
     },
 
     /**

@@ -312,7 +312,7 @@ var SceneManager = new Class({
      * @since 3.0.0
      *
      * @param {string} key - A unique key used to reference the Scene, i.e. `MainMenu` or `Level1`.
-     * @param {(Phaser.Scene|Phaser.Scenes.Settings.Config|function)} sceneConfig - The config for the Scene
+     * @param {(Phaser.Scene|Phaser.Scenes.Types.SettingsConfig|Phaser.Scenes.Types.CreateSceneFromObjectConfig|function)} sceneConfig - The config for the Scene
      * @param {boolean} [autoStart=false] - If `true` the Scene will be started immediately after being added.
      * @param {object} [data] - Optional data object. This will be set as Scene.settings.data and passed to `Scene.init`.
      *
@@ -514,7 +514,8 @@ var SceneManager = new Class({
     {
         var scene = loader.scene;
 
-        // Try to unlock HTML5 sounds every time any loader completes
+        //  TODO - Remove. This should *not* be handled here
+        //  Try to unlock HTML5 sounds every time any loader completes
         if (this.game.sound.onBlurPausedSounds)
         {
             this.game.sound.unlock();
@@ -593,6 +594,7 @@ var SceneManager = new Class({
      *
      * @method Phaser.Scenes.SceneManager#create
      * @private
+     * @fires Phaser.Scenes.Events#CREATE
      * @fires Phaser.Scenes.Events#TRANSITION_INIT
      * @since 3.0.0
      *
@@ -622,6 +624,8 @@ var SceneManager = new Class({
         }
 
         settings.status = CONST.RUNNING;
+
+        sys.events.emit(Events.CREATE, scene);
     },
 
     /**
@@ -706,7 +710,7 @@ var SceneManager = new Class({
      * @since 3.0.0
      *
      * @param {string} key - The key of the Scene.
-     * @param {(string|Phaser.Scenes.Settings.Config)} sceneConfig - The Scene config.
+     * @param {(string|Phaser.Scenes.Types.SettingsConfig|Phaser.Scenes.Types.CreateSceneFromObjectConfig)} sceneConfig - The Scene config.
      *
      * @return {Phaser.Scene} The created Scene.
      */
@@ -784,7 +788,7 @@ var SceneManager = new Class({
      * @since 3.0.0
      *
      * @param {string} key - The key to check in the Scene config.
-     * @param {(Phaser.Scene|Phaser.Scenes.Settings.Config|function)} sceneConfig - The Scene config.
+     * @param {(Phaser.Scene|Phaser.Scenes.Types.SettingsConfig|function)} sceneConfig - The Scene config.
      *
      * @return {string} The Scene key.
      */
@@ -886,14 +890,14 @@ var SceneManager = new Class({
     },
 
     /**
-     * Determines whether a Scene is active.
+     * Determines whether a Scene is running.
      *
      * @method Phaser.Scenes.SceneManager#isActive
      * @since 3.0.0
      *
      * @param {string} key - The Scene to check.
      *
-     * @return {boolean} Whether the Scene is active.
+     * @return {boolean} Whether the Scene is running.
      */
     isActive: function (key)
     {
@@ -902,6 +906,28 @@ var SceneManager = new Class({
         if (scene)
         {
             return scene.sys.isActive();
+        }
+
+        return null;
+    },
+
+    /**
+     * Determines whether a Scene is paused.
+     *
+     * @method Phaser.Scenes.SceneManager#isPaused
+     * @since 3.17.0
+     *
+     * @param {string} key - The Scene to check.
+     *
+     * @return {boolean} Whether the Scene is paused.
+     */
+    isPaused: function (key)
+    {
+        var scene = this.getScene(key);
+
+        if (scene)
+        {
+            return scene.sys.isPaused();
         }
 
         return null;

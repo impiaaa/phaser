@@ -389,6 +389,11 @@ var Camera = new Class({
      */
     clearRenderToTexture: function ()
     {
+        if (!this.scene)
+        {
+            return;
+        }
+
         var renderer = this.scene.sys.game.renderer;
 
         if (renderer.gl)
@@ -883,6 +888,12 @@ var Camera = new Class({
 
         this.scrollX = fx - originX;
         this.scrollY = fy - originY;
+        
+        if (this.useBounds)
+        {
+            this.scrollX = this.clampX(this.scrollX);
+            this.scrollY = this.clampY(this.scrollY);
+        }
 
         return this;
     },
@@ -950,7 +961,7 @@ var Camera = new Class({
      * cameras are stored in a pool, ready for recycling later, and calling this directly will prevent that.
      *
      * @method Phaser.Cameras.Scene2D.Camera#destroy
-     * @fires CameraDestroyEvent
+     * @fires Phaser.Cameras.Scene2D.Events#DESTROY
      * @since 3.0.0
      */
     destroy: function ()

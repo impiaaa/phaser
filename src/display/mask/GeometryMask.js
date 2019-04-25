@@ -20,7 +20,7 @@ var Class = require('../../utils/Class');
  * The Geometry Mask's location matches the location of its Graphics object, not the location of the masked objects.
  * Moving or transforming the underlying Graphics object will change the mask (and affect the visibility
  * of any masked objects), whereas moving or transforming a masked object will not affect the mask.
- * You can think of the Geometry Mask (or rather, of the its Graphics object) as an invisible curtain placed
+ * You can think of the Geometry Mask (or rather, of its Graphics object) as an invisible curtain placed
  * in front of all masked objects which has its own visual properties and, naturally, respects the camera's
  * visual properties, but isn't affected by and doesn't follow the masked objects by itself.
  *
@@ -65,10 +65,34 @@ var GeometryMask = new Class({
      * @since 3.0.0
      *
      * @param {Phaser.GameObjects.Graphics} graphicsGeometry - The Graphics object which will be used for the Geometry Mask.
+     * 
+     * @return {this} This Geometry Mask
      */
     setShape: function (graphicsGeometry)
     {
         this.geometryMask = graphicsGeometry;
+
+        return this;
+    },
+
+    /**
+     * Sets the `invertAlpha` property of this Geometry Mask.
+     * Inverting the alpha essentially flips the way the mask works.
+     *
+     * @method Phaser.Display.Masks.GeometryMask#setInvertAlpha
+     * @since 3.17.0
+     *
+     * @param {boolean} [value=true] - Invert the alpha of this mask?
+     * 
+     * @return {this} This Geometry Mask
+     */
+    setInvertAlpha: function (value)
+    {
+        if (value === undefined) { value = true; }
+
+        this.invertAlpha = value;
+
+        return this;
     },
 
     /**
@@ -78,42 +102,55 @@ var GeometryMask = new Class({
      * @since 3.0.0
      *
      * @param {Phaser.Renderer.WebGL.WebGLRenderer} renderer - The WebGL Renderer instance to draw to.
-     * @param {Phaser.GameObjects.GameObject} mask - The Game Object being rendered.
+     * @param {Phaser.GameObjects.GameObject} child - The Game Object being rendered.
      * @param {Phaser.Cameras.Scene2D.Camera} camera - The camera the Game Object is being rendered through.
      */
-    preRenderWebGL: function (renderer, mask, camera, transformMatrix)
+    preRenderWebGL: function (renderer, child, camera, transformMatrix)
     {
         var gl = renderer.gl;
         var geometryMask = this.geometryMask;
 
-        // Force flushing before drawing to stencil buffer
+        //  Force flushing before drawing to stencil buffer
         renderer.flush();
 
-        // Enable and setup GL state to write to stencil buffer
-        gl.enable(gl.STENCIL_TEST);
-        gl.clear(gl.STENCIL_BUFFER_BIT);
-        gl.colorMask(false, false, false, false);
-        gl.stencilFunc(gl.NOTEQUAL, 1, 1);
-        gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
+        if (renderer.maskStack.length === 0)
+        {
+            gl.enable(gl.STENCIL_TEST);
+            gl.clear(gl.STENCIL_BUFFER_BIT);
 
-        // Write stencil buffer
+            renderer.maskCount = 0;
+        }
+
+        renderer.currentMask = this;
+        renderer.maskStack.push({ mask: this, camera: camera });
+
+        var level = renderer.maskCount;
+
+        gl.colorMask(false, false, false, false);
+
+        gl.stencilFunc(gl.EQUAL, level, 0xFF);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
+
+        //  Write stencil buffer
         geometryMask.renderWebGL(renderer, geometryMask, 0, camera, transformMatrix);
 
         renderer.flush();
 
-        // Use stencil buffer to affect next rendering object
+        //  Use stencil buffer to affect next rendering object
         gl.colorMask(true, true, true, true);
 
         if (this.invertAlpha)
         {
-            gl.stencilFunc(gl.NOTEQUAL, 1, 1);
+            gl.stencilFunc(gl.NOTEQUAL, level + 1, 0xFF);
         }
         else
         {
-            gl.stencilFunc(gl.EQUAL, 1, 1);
+            gl.stencilFunc(gl.EQUAL, level + 1, 0xFF);
         }
 
         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+
+        renderer.maskCount++;
     },
 
     /**
@@ -128,10 +165,54 @@ var GeometryMask = new Class({
     {
         var gl = renderer.gl;
 
-        // Force flush before disabling stencil test
-        renderer.flush();
+        renderer.maskStack.pop();
 
-        gl.disable(gl.STENCIL_TEST);
+        renderer.maskCount--;
+
+        if (renderer.maskStack.length === 0)
+        {
+            //  If this is the only mask in the stack, flush and disable
+            renderer.flush();
+
+            renderer.currentMask = null;
+
+            gl.disable(gl.STENCIL_TEST);
+        }
+        else
+        {
+            // Force flush before disabling stencil test
+            renderer.flush();
+
+            var level = renderer.maskCount;
+
+            gl.colorMask(false, false, false, false);
+
+            gl.stencilFunc(gl.EQUAL, level + 1, 0xFF);
+            gl.stencilOp(gl.KEEP, gl.KEEP, gl.DECR);
+
+            //  Get the mask previous to this one
+            var prev = renderer.maskStack[renderer.maskStack.length - 1];
+            var geometryMask = prev.mask.geometryMask;
+            var camera = prev.camera;
+
+            renderer.currentMask = prev.mask;
+
+            geometryMask.renderWebGL(renderer, geometryMask, 0, camera);
+
+            renderer.flush();
+
+            if (prev.mask.invertAlpha)
+            {
+                gl.stencilFunc(gl.NOTEQUAL, level, 0xFF);
+            }
+            else
+            {
+                gl.stencilFunc(gl.EQUAL, level, 0xFF);
+            }
+
+            gl.colorMask(true, true, true, true);
+            gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+        }
     },
 
     /**

@@ -493,19 +493,19 @@ var InputManager = new Class({
             this._setCursor = 0;
     
             this._updatedThisFrame = true;
-        }
 
-        this.events.emit(Events.MANAGER_UPDATE);
+            this.events.emit(Events.MANAGER_UPDATE);
     
-        this.ignoreEvents = false;
-
-        this.dirty = true;
-
-        var pointers = this.pointers;
+            this.ignoreEvents = false;
     
-        for (var i = 0; i < this.pointersTotal; i++)
-        {
-            pointers[i].reset(time);
+            this.dirty = true;
+    
+            var pointers = this.pointers;
+        
+            for (var i = 0; i < this.pointersTotal; i++)
+            {
+                pointers[i].reset(time);
+            }
         }
     },
 
@@ -521,6 +521,8 @@ var InputManager = new Class({
     preStep: function (time)
     {
         this.time = time;
+
+        this.update(time);
     },
 
     /**
@@ -690,7 +692,7 @@ var InputManager = new Class({
      * @private
      * @since 3.10.0
      * 
-     * @param {Phaser.Input.InteractiveObject} interactiveObject - The Interactive Object that called this method.
+     * @param {Phaser.Input.Types.InteractiveObject} interactiveObject - The Interactive Object that called this method.
      */
     setCursor: function (interactiveObject)
     {
@@ -710,7 +712,7 @@ var InputManager = new Class({
      * @private
      * @since 3.10.0
      * 
-     * @param {Phaser.Input.InteractiveObject} interactiveObject - The Interactive Object that called this method.
+     * @param {Phaser.Input.Types.InteractiveObject} interactiveObject - The Interactive Object that called this method.
      */
     resetCursor: function (interactiveObject)
     {
@@ -1590,7 +1592,7 @@ var InputManager = new Class({
      * @method Phaser.Input.InputManager#pointWithinInteractiveObject
      * @since 3.0.0
      *
-     * @param {Phaser.Input.InteractiveObject} object - The Interactive Object to check against.
+     * @param {Phaser.Input.Types.InteractiveObject} object - The Interactive Object to check against.
      * @param {number} x - The translated x coordinate for the hit test.
      * @param {number} y - The translated y coordinate for the hit test.
      *
